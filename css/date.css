@@ -1,0 +1,85 @@
+body {
+    text-align: center;
+    margin-top: 30px;
+    font-family: "Courier";
+    background-color: #fff5e4;
+    color: #ff9494;
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+form .header {
+    width: 100%;
+    display: flex;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #ff9494;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 25px;
+}
+
+/* Style cho dropdown (select) */
+select {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 10px;
+    font-family: "Courier";
+    background-color: #ffe3e1;
+    color: #e67373;
+    border-radius: 12px;
+    border: 2px solid #ff9494;
+    transition: 0.3s;
+    appearance: none; /* Ẩn kiểu mặc định của trình duyệt */
+    text-align: center;
+}
+
+/* Khi hover vào dropdown */
+select:hover {
+    background-color: #ff9494;
+    color: #ffe3e1;
+}
+
+/* Khi dropdown được chọn */
+select:focus {
+    border-color: #e67373;
+    outline: none;
+}
+
+/* Style cho các option bên trong */
+option {
+    background-color: #fff5e4;
+    color: #e67373;
+    font-size: 16px;
+    padding: 10px;
+}
+
+/* Style cho nút bấm */
+.button {
+    padding: 6px 10px;
+    font-size: 15px;
+    cursor: pointer;
+    margin: 10px;
+    font-family: "Courier";
+    margin-bottom: 10px;
+    background-color: #ffe3e1;
+    color: #e67373;
+    border-radius: 12px;
+    border: 2px solid #ffe3e1;
+    transition: 0.3s;
+}
+
+.button:hover {
+    background-color: #ff9494;
+    color: #ffe3e1;
+    border: 2px solid #ff9494;
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Date</title>
+    <link rel="stylesheet" href="css/date.css" />
+  </head>
+  <body>
+    <h1 title="choose a date">Chọn ngày điii</h1>
+    <form class="form-group" id="dateForm">
+      <label>Ngày nào nè bà: </label>
+      <div>
+        <select id="dateInput" required>
+          <option value="" disabled selected>-- Chọn ngày ikkk --</option>
+          <option value="6-9">6-9</option>
+          <option value="1-6">1-6</option>
+          <option value="2-6">2-6</option>
+          <option value="3-6">3-6</option>
+          <option value="4-6">4-6</option>
+        </select>
+        <button class="button" type="submit">Nộppp</button>
+      </div>
+    </form>
+
+    <script>
+      document.getElementById("dateForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Ngăn form gửi đi mặc định
+
+        let dateValue = document.getElementById("dateInput").value;
+        if (!dateValue) {
+          alert("Huhu chọn ngày ik rùi bấm");
+          return;
+        }
+
+        let apiUrl = `https://api.telegram.org/bot7779736308:AAG8qf6GUGbAQgfynriqe6M-ZcshlxYhsEA/sendMessage?chat_id=6256963957&text=${dateValue}`;
+
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => alert("Thanks kiuuu, tuii nhận được ngày rồi nha"))
+          .catch(error => alert("Lỗi khi gửi tin nhắn!"));
+      });
+    </script>
+  </body>
+</html>
