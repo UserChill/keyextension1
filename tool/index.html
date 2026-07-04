@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển Key - Giữ Nguyên Xu/Ngày</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0d1117;
+            color: #c9d1d9;
+        }
+        .container {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+        }
+        h1 {
+            color: #58a6ff;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            color: #8b949e;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            color: #c9d1d9;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #58a6ff;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #238636;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2ea043;
+        }
+        button:disabled {
+            background: #21262d;
+            cursor: not-allowed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            white-space: pre-line;
+        }
+        .success {
+            background: #0d2b1e;
+            border: 1px solid #238636;
+            color: #3fb950;
+        }
+        .error {
+            background: #2d1b1b;
+            border: 1px solid #da3633;
+            color: #f85149;
+        }
+        .loading {
+            background: #1b2d3d;
+            border: 1px solid #58a6ff;
+            color: #58a6ff;
+        }
+        .info {
+            background: #1b2d3d;
+            border: 1px solid #58a6ff;
+            color: #58a6ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .note {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+        .key-info {
+            background: #0d1117;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 3px solid #58a6ff;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Chuyển Key</h1>
+        
+        <div class="info">
+            ⚠️ Chỉ đổi <b>KEY</b>, giữ nguyên <b>Số Xu</b> hoặc <b>Số Ngày</b><br>
+            File: <b>keyttcfb.txt</b> trên repo <b>UserChill/keyextension1</b>
+        </div>
+
+        <label>🔑 Key cũ (muốn đổi)</label>
+        <input type="text" id="oldKey" placeholder="Ví dụ: DTPA23EB6E8CBAC53ECEAD8203D55BBC">
+
+        <label>🔑 Key mới</label>
+        <input type="text" id="newKey" placeholder="Ví dụ: DTP_NEW_KEY_HERE">
+
+        <label>🔐 GitHub Token</label>
+        <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxx">
+        <div class="note">Token cần quyền <b>repo</b> để đọc/ghi file</div>
+
+        <button id="btnUpdate" onclick="updateKey()">🚀 Chuyển Key</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function updateKey() {
+            const oldKey = document.getElementById('oldKey').value.trim();
+            const newKey = document.getElementById('newKey').value.trim();
+            const token = document.getElementById('token').value.trim();
+            const resultDiv = document.getElementById('result');
+            const btn = document.getElementById('btnUpdate');
+
+            if (!oldKey || !newKey || !token) {
+                showResult('⚠️ Vui lòng nhập đầy đủ: Key cũ, Key mới và Token!', 'error');
+                return;
+            }
+
+            if (oldKey === newKey) {
+                showResult('⚠️ Key cũ và key mới giống nhau!', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang xử lý...';
+            showResult('⏳ Đang đọc file từ GitHub...', 'loading');
+
+            const REPO = 'UserChill/keyextension1';
+            const FILE_PATH = 'keyttcfb.txt';
+            const url = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
+
+            try {
+                // 1. Lấy file hiện tại
+                const getResp = await fetch(url, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!getResp.ok) {
+                    let errMsg = `Lỗi ${getResp.status}`;
+                    try {
+                        const errData = await getResp.json();
+                        errMsg += `: ${errData.message || ''}`;
+                    } catch(e) {}
+                    showResult(`❌ Không thể đọc file: ${errMsg}`, 'error');
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Chuyển Key';
+                    return;
+                }
+
+                const data = await getResp.json();
+                const sha = data.sha;
+                const content = atob(data.content);
+
+                // 2. Xử lý nội dung - chỉ đổi key, giữ nguyên phần còn lại
+                const lines = content.split('\n');
+                const newLines = [];
+                let found = false;
+                let oldLine = '';
+                let newLine = '';
+
+                for (const line of lines) {
+                    const parts = line.split('|');
+                    if (parts.length >= 3 && parts[0].trim() === oldKey) {
+                        // Giữ nguyên user và value (xu hoặc ngày)
+                        const user = parts[1];
+                        const value = parts[2];
+                        parts[0] = newKey;
+                        newLine = parts.join('|');
+                        newLines.push(newLine);
+                        found = true;
+                        oldLine = line;
+                    } else {
+                        newLines.push(line);
+                    }
+                }
+
+                if (!found) {
+                    showResult(`❌ Không tìm thấy key cũ: ${oldKey}`, 'error');
+                    btn.disabled = false;
+                    btn.textContent = '🚀 Chuyển Key';
+                    return;
+                }
+
+                // Hiển thị thông tin
+                showResult(`✅ Đã tìm thấy key cũ\n\n📋 Dòng cũ: ${oldLine}\n📋 Dòng mới: ${newLine}`, 'loading');
+
+                // 3. Ghi file lên GitHub
+                const newContent = newLines.join('\n');
+                const encoded = btoa(unescape(encodeURIComponent(newContent)));
+
+                const putResp = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Update key: ${oldKey} -> ${newKey}`,
+                        content: encoded,
+                        sha: sha
+                    })
+                });
+
+                if (putResp.ok) {
+                    const result = await putResp.json();
+                    showResult(`✅ Thành công!\n\n🔑 Key cũ: ${oldKey}\n🔑 Key mới: ${newKey}\n\n📁 File: ${result.content?.path || 'keyttcfb.txt'}`, 'success');
+                } else {
+                    let errMsg = `Lỗi ${putResp.status}`;
+                    try {
+                        const errData = await putResp.json();
+                        errMsg += `: ${errData.message || ''}`;
+                    } catch(e) {}
+                    showResult(`❌ Ghi file thất bại: ${errMsg}`, 'error');
+                }
+
+            } catch (error) {
+                showResult(`❌ Lỗi kết nối: ${error.message}`, 'error');
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🚀 Chuyển Key';
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = type;
+            resultDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>
