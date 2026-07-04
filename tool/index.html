@@ -23,6 +23,20 @@
             color: #58a6ff;
             text-align: center;
         }
+        .fixed-notice {
+            background: #1b2d3d;
+            border: 1px solid #58a6ff;
+            color: #58a6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .fixed-notice strong {
+            color: #f0883e;
+        }
         label {
             display: block;
             margin: 15px 0 5px;
@@ -106,16 +120,35 @@
             font-family: monospace;
             font-size: 14px;
         }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #8b949e;
+            border-top: 1px solid #30363d;
+            padding-top: 15px;
+        }
+        .footer a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🔄 Chuyển Key</h1>
         
-        <div class="info">
-            ⚠️ Chỉ đổi <b>KEY</b>, giữ nguyên <b>Số Xu</b> hoặc <b>Số Ngày</b><br>
-            File: <b>keyttcfb.txt</b> trên repo <b>UserChill/keyextension1</b>
+        <!-- === MÃ THÔNG BÁO CỐ ĐỊNH === -->
+        <div class="fixed-notice">
+            🔐 <strong>Tool chuyển key chính thức</strong><br>
+            📅 Cập nhật: 05/07/2026<br>
+            📌 Chỉ đổi <strong>KEY</strong>, giữ nguyên Số Xu hoặc Số Ngày<br>
+            📁 File: <strong>keyttcfb.txt</strong> trên repo <strong>UserChill/keyextension1</strong>
         </div>
+        <!-- ================================= -->
 
         <label>🔑 Key cũ (muốn đổi)</label>
         <input type="text" id="oldKey" placeholder="Ví dụ: DTPA23EB6E8CBAC53ECEAD8203D55BBC">
@@ -130,6 +163,10 @@
         <button id="btnUpdate" onclick="updateKey()">🚀 Chuyển Key</button>
 
         <div id="result"></div>
+
+        <div class="footer">
+            <a href="https://github.com/UserChill/keyextension1" target="_blank">📂 Xem trên GitHub</a>
+        </div>
     </div>
 
     <script>
@@ -159,7 +196,6 @@
             const url = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
 
             try {
-                // 1. Lấy file hiện tại
                 const getResp = await fetch(url, {
                     headers: {
                         'Authorization': `token ${token}`,
@@ -183,7 +219,6 @@
                 const sha = data.sha;
                 const content = atob(data.content);
 
-                // 2. Xử lý nội dung - chỉ đổi key, giữ nguyên phần còn lại
                 const lines = content.split('\n');
                 const newLines = [];
                 let found = false;
@@ -193,7 +228,6 @@
                 for (const line of lines) {
                     const parts = line.split('|');
                     if (parts.length >= 3 && parts[0].trim() === oldKey) {
-                        // Giữ nguyên user và value (xu hoặc ngày)
                         const user = parts[1];
                         const value = parts[2];
                         parts[0] = newKey;
@@ -213,10 +247,8 @@
                     return;
                 }
 
-                // Hiển thị thông tin
                 showResult(`✅ Đã tìm thấy key cũ\n\n📋 Dòng cũ: ${oldLine}\n📋 Dòng mới: ${newLine}`, 'loading');
 
-                // 3. Ghi file lên GitHub
                 const newContent = newLines.join('\n');
                 const encoded = btoa(unescape(encodeURIComponent(newContent)));
 
